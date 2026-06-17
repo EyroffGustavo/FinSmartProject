@@ -1,0 +1,142 @@
+﻿@{
+    ViewData["Title"] = "Financeiro Inteligente";
+}
+
+<div class="app">
+    <aside class="sidebar">
+        <h2>FinSmart</h2>
+
+        <button class="menu active" data-page="dashboard">Dashboard</button>
+        <button class="menu" data-page="receitas">Receitas</button>
+        <button class="menu" data-page="despesas">Despesas</button>
+        <button class="menu" data-page="dividas">Dívidas</button>
+        <button class="menu" data-page="metas">Metas</button>
+        <button class="menu" data-page="planejador">Planejador</button>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p>Controle financeiro pessoal inteligente</p>
+            </div>
+
+            <button onclick="limparTudo()" class="danger">Limpar dados</button>
+        </header>
+
+        <section id="dashboard" class="page active">
+            <div class="cards">
+                <div class="card">
+                    <span>Saldo Atual</span>
+                    <h2 id="saldoAtual">R$ 0,00</h2>
+                </div>
+
+                <div class="card green">
+                    <span>Receitas</span>
+                    <h2 id="totalReceitas">R$ 0,00</h2>
+                </div>
+
+                <div class="card red">
+                    <span>Despesas</span>
+                    <h2 id="totalDespesas">R$ 0,00</h2>
+                </div>
+
+                <div class="card purple">
+                    <span>Dívidas</span>
+                    <h2 id="totalDividas">R$ 0,00</h2>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="panel">
+                    <h3>Últimas movimentações</h3>
+                    <div id="ultimasMovimentacoes"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>Resumo inteligente</h3>
+                    <p id="resumoInteligente"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="receitas" class="page">
+            <div class="panel">
+                <h3>Nova Receita</h3>
+
+                <form id="formReceita">
+                    <input placeholder="Descrição" id="receitaDescricao" required />
+                    <input placeholder="Categoria" id="receitaCategoria" required />
+                    <input placeholder="Valor" id="receitaValor" type="number" step="0.01" required />
+                    <input id="receitaData" type="date" required />
+                    <button>Adicionar Receita</button>
+                </form>
+
+                <div id="listaReceitas"></div>
+            </div>
+        </section>
+
+        <section id="despesas" class="page">
+            <div class="panel">
+                <h3>Nova Despesa</h3>
+
+                <form id="formDespesa">
+                    <input placeholder="Descrição" id="despesaDescricao" required />
+                    <input placeholder="Categoria" id="despesaCategoria" required />
+                    <input placeholder="Valor" id="despesaValor" type="number" step="0.01" required />
+                    <input id="despesaData" type="date" required />
+                    <button>Adicionar Despesa</button>
+                </form>
+
+                <div id="listaDespesas"></div>
+            </div>
+        </section>
+
+        <section id="dividas" class="page">
+            <div class="panel">
+                <h3>Nova Dívida</h3>
+
+                <form id="formDivida">
+                    <input placeholder="Nome da dívida" id="dividaNome" required />
+                    <input placeholder="Valor total" id="dividaValor" type="number" step="0.01" required />
+                    <input placeholder="Prazo em meses" id="dividaPrazo" type="number" required />
+                    <button>Adicionar Dívida</button>
+                </form>
+
+                <div id="listaDividas"></div>
+            </div>
+        </section>
+
+        <section id="metas" class="page">
+            <div class="panel">
+                <h3>Nova Meta</h3>
+
+                <form id="formMeta">
+                    <input placeholder="Nome da meta" id="metaNome" required />
+                    <input placeholder="Valor objetivo" id="metaObjetivo" type="number" step="0.01" required />
+                    <input placeholder="Valor atual" id="metaAtual" type="number" step="0.01" required />
+                    <button>Adicionar Meta</button>
+                </form>
+
+                <div id="listaMetas"></div>
+            </div>
+        </section>
+
+        <section id="planejador" class="page">
+            <div class="panel">
+                <h3>Planejador Inteligente</h3>
+
+                <form id="formPlanejador">
+                    <input placeholder="Renda mensal" id="planRenda" type="number" step="0.01" required />
+                    <input placeholder="Gastos fixos" id="planFixos" type="number" step="0.01" required />
+                    <input placeholder="Gastos variáveis" id="planVariaveis" type="number" step="0.01" required />
+                    <input placeholder="Valor da dívida/meta" id="planObjetivo" type="number" step="0.01" required />
+                    <input placeholder="Prazo desejado em meses" id="planPrazo" type="number" required />
+                    <button>Calcular Plano</button>
+                </form>
+
+                <div id="resultadoPlanejador" class="resultado"></div>
+            </div>
+        </section>
+    </main>
+</div>
