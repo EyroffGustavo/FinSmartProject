@@ -2,74 +2,117 @@
     ViewData["Title"] = "Financeiro Inteligente";
 }
 
-<div class="app">
-    <aside class="sidebar">
-        <h2>FinSmart</h2>
+<div class="fi-app">
+    <aside class="fi-sidebar">
+        <div class="brand">
+            <div class="brand-icon">F</div>
+            <div>
+                <strong>FinSmart</strong>
+                <span>Financeiro Inteligente</span>
+            </div>
+        </div>
 
-        <button class="menu active" data-page="dashboard">Dashboard</button>
-        <button class="menu" data-page="receitas">Receitas</button>
-        <button class="menu" data-page="despesas">Despesas</button>
-        <button class="menu" data-page="dividas">Dívidas</button>
-        <button class="menu" data-page="metas">Metas</button>
-        <button class="menu" data-page="planejador">Planejador</button>
+        <nav>
+            <button class="nav-item active" data-page="dashboard">Overview</button>
+            <button class="nav-item" data-page="receitas">Receitas</button>
+            <button class="nav-item" data-page="despesas">Despesas</button>
+            <button class="nav-item" data-page="dividas">Dívidas</button>
+            <button class="nav-item" data-page="metas">Metas</button>
+            <button class="nav-item" data-page="planejador">Planejador</button>
+        </nav>
+
+        <div class="sidebar-card">
+            <small>Saúde financeira</small>
+            <strong id="scoreSidebar">0/100</strong>
+            <div class="mini-progress">
+                <span id="scoreBar"></span>
+            </div>
+        </div>
     </aside>
 
-    <main class="content">
-        <header class="topbar">
+    <main class="fi-main">
+        <header class="fi-header">
             <div>
-                <h1 id="pageTitle">Dashboard</h1>
-                <p>Controle financeiro pessoal inteligente</p>
+                <p class="eyebrow">Dashboard pessoal</p>
+                <h1 id="pageTitle">Overview financeiro</h1>
+                <span>Controle suas finanças com clareza, metas e inteligência.</span>
             </div>
 
-            <button onclick="limparTudo()" class="danger">Limpar dados</button>
+            <button class="ghost-danger" onclick="limparTudo()">Limpar dados</button>
         </header>
 
         <section id="dashboard" class="page active">
-            <div class="cards">
-                <div class="card">
-                    <span>Saldo Atual</span>
+            <div class="hero-panel">
+                <div>
+                    <p class="eyebrow">Saldo disponível</p>
                     <h2 id="saldoAtual">R$ 0,00</h2>
+                    <span id="saldoStatus">Cadastre receitas e despesas para iniciar.</span>
                 </div>
 
-                <div class="card green">
-                    <span>Receitas</span>
-                    <h2 id="totalReceitas">R$ 0,00</h2>
-                </div>
-
-                <div class="card red">
-                    <span>Despesas</span>
-                    <h2 id="totalDespesas">R$ 0,00</h2>
-                </div>
-
-                <div class="card purple">
-                    <span>Dívidas</span>
-                    <h2 id="totalDividas">R$ 0,00</h2>
+                <div class="hero-orb">
+                    <span id="scoreHero">0</span>
+                    <small>score</small>
                 </div>
             </div>
 
-            <div class="grid">
-                <div class="panel">
-                    <h3>Últimas movimentações</h3>
+            <div class="stats-grid">
+                <div class="stat-card income">
+                    <span>Receitas</span>
+                    <strong id="totalReceitas">R$ 0,00</strong>
+                    <small>Entradas registradas</small>
+                </div>
+
+                <div class="stat-card expense">
+                    <span>Despesas</span>
+                    <strong id="totalDespesas">R$ 0,00</strong>
+                    <small>Saídas registradas</small>
+                </div>
+
+                <div class="stat-card debt">
+                    <span>Dívidas</span>
+                    <strong id="totalDividas">R$ 0,00</strong>
+                    <small>Compromissos ativos</small>
+                </div>
+
+                <div class="stat-card goal">
+                    <span>Metas</span>
+                    <strong id="totalMetas">0</strong>
+                    <small>Objetivos cadastrados</small>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="glass-panel">
+                    <div class="panel-title">
+                        <h3>Últimas movimentações</h3>
+                        <span>Histórico recente</span>
+                    </div>
                     <div id="ultimasMovimentacoes"></div>
                 </div>
 
-                <div class="panel">
-                    <h3>Resumo inteligente</h3>
+                <div class="glass-panel insight">
+                    <div class="panel-title">
+                        <h3>Assistente financeiro</h3>
+                        <span>Análise automática</span>
+                    </div>
                     <p id="resumoInteligente"></p>
                 </div>
             </div>
         </section>
 
         <section id="receitas" class="page">
-            <div class="panel">
-                <h3>Nova Receita</h3>
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <h3>Nova receita</h3>
+                    <span>Cadastre suas entradas mensais</span>
+                </div>
 
-                <form id="formReceita">
+                <form id="formReceita" class="smart-form">
                     <input placeholder="Descrição" id="receitaDescricao" required />
                     <input placeholder="Categoria" id="receitaCategoria" required />
                     <input placeholder="Valor" id="receitaValor" type="number" step="0.01" required />
                     <input id="receitaData" type="date" required />
-                    <button>Adicionar Receita</button>
+                    <button>Adicionar</button>
                 </form>
 
                 <div id="listaReceitas"></div>
@@ -77,15 +120,18 @@
         </section>
 
         <section id="despesas" class="page">
-            <div class="panel">
-                <h3>Nova Despesa</h3>
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <h3>Nova despesa</h3>
+                    <span>Controle suas saídas</span>
+                </div>
 
-                <form id="formDespesa">
+                <form id="formDespesa" class="smart-form">
                     <input placeholder="Descrição" id="despesaDescricao" required />
                     <input placeholder="Categoria" id="despesaCategoria" required />
                     <input placeholder="Valor" id="despesaValor" type="number" step="0.01" required />
                     <input id="despesaData" type="date" required />
-                    <button>Adicionar Despesa</button>
+                    <button>Adicionar</button>
                 </form>
 
                 <div id="listaDespesas"></div>
@@ -93,14 +139,17 @@
         </section>
 
         <section id="dividas" class="page">
-            <div class="panel">
-                <h3>Nova Dívida</h3>
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <h3>Nova dívida</h3>
+                    <span>Planeje a quitação com prazo definido</span>
+                </div>
 
-                <form id="formDivida">
+                <form id="formDivida" class="smart-form three">
                     <input placeholder="Nome da dívida" id="dividaNome" required />
                     <input placeholder="Valor total" id="dividaValor" type="number" step="0.01" required />
                     <input placeholder="Prazo em meses" id="dividaPrazo" type="number" required />
-                    <button>Adicionar Dívida</button>
+                    <button>Adicionar</button>
                 </form>
 
                 <div id="listaDividas"></div>
@@ -108,14 +157,17 @@
         </section>
 
         <section id="metas" class="page">
-            <div class="panel">
-                <h3>Nova Meta</h3>
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <h3>Nova meta</h3>
+                    <span>Acompanhe seus objetivos</span>
+                </div>
 
-                <form id="formMeta">
+                <form id="formMeta" class="smart-form three">
                     <input placeholder="Nome da meta" id="metaNome" required />
                     <input placeholder="Valor objetivo" id="metaObjetivo" type="number" step="0.01" required />
                     <input placeholder="Valor atual" id="metaAtual" type="number" step="0.01" required />
-                    <button>Adicionar Meta</button>
+                    <button>Adicionar</button>
                 </form>
 
                 <div id="listaMetas"></div>
@@ -123,19 +175,22 @@
         </section>
 
         <section id="planejador" class="page">
-            <div class="panel">
-                <h3>Planejador Inteligente</h3>
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <h3>Planejador inteligente</h3>
+                    <span>Simule metas, dívidas e prazos</span>
+                </div>
 
-                <form id="formPlanejador">
+                <form id="formPlanejador" class="smart-form">
                     <input placeholder="Renda mensal" id="planRenda" type="number" step="0.01" required />
                     <input placeholder="Gastos fixos" id="planFixos" type="number" step="0.01" required />
                     <input placeholder="Gastos variáveis" id="planVariaveis" type="number" step="0.01" required />
                     <input placeholder="Valor da dívida/meta" id="planObjetivo" type="number" step="0.01" required />
-                    <input placeholder="Prazo desejado em meses" id="planPrazo" type="number" required />
-                    <button>Calcular Plano</button>
+                    <input placeholder="Prazo em meses" id="planPrazo" type="number" required />
+                    <button>Calcular</button>
                 </form>
 
-                <div id="resultadoPlanejador" class="resultado"></div>
+                <div id="resultadoPlanejador" class="planner-result"></div>
             </div>
         </section>
     </main>

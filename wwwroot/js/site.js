@@ -16,7 +16,21 @@ function salvar() {
 }
 
 function total(lista, campo = "valor") {
-    return lista.reduce((soma, item) => soma + Number(item[campo]), 0);
+    return lista.reduce((soma, item) => soma + Number(item[campo] || 0), 0);
+}
+
+function calcularScore(totalR, totalD, totalDividas) {
+    if (totalR <= 0) return 0;
+
+    const percentualGasto = (totalD / totalR) * 100;
+    let score = 100;
+
+    if (percentualGasto > 50) score -= (percentualGasto - 50) * 0.9;
+    if (totalDividas > 0) score -= Math.min((totalDividas / totalR) * 12, 25);
+    if (metas.length === 0) score -= 10;
+    if (totalR - totalD <= 0) score -= 25;
+
+    return Math.max(0, Math.min(100, Math.round(score)));
 }
 
 function atualizarDashboard() {
@@ -24,20 +38,32 @@ function atualizarDashboard() {
     const totalD = total(despesas);
     const totalDiv = total(dividas);
     const saldo = totalR - totalD;
+    const score = calcularScore(totalR, totalD, totalDiv);
 
-    document.getElementById("saldoAtual").innerText = moeda(saldo);
-    document.getElementById("totalReceitas").innerText = moeda(totalR);
-    document.getElementById("totalDespesas").innerText = moeda(totalD);
-    document.getElementById("totalDividas").innerText = moeda(totalDiv);
+    saldoAtual.innerText = moeda(saldo);
+    totalReceitas.innerText = moeda(totalR);
+    totalDespesas.innerText = moeda(totalD);
+    totalDividas.innerText = moeda(totalDiv);
+    totalMetas.innerText = metas.length;
+
+    scoreHero.innerText = score;
+    scoreSidebar.innerText = `${score}/100`;
+    scoreBar.style.width = `${score}%`;
+
+    saldoStatus.innerText = saldo > 0
+        ? `Você possui ${moeda(saldo)} disponíveis após despesas.`
+        : saldo < 0
+            ? `Seu saldo está negativo em ${moeda(Math.abs(saldo))}.`
+            : "Cadastre receitas e despesas para iniciar.";
 
     const ultimas = [
         ...receitas.map(x => ({ ...x, tipo: "Receita" })),
         ...despesas.map(x => ({ ...x, tipo: "Despesa" }))
     ].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 6);
 
-    document.getElementById("ultimasMovimentacoes").innerHTML =
+    ultimasMovimentacoes.innerHTML =
         ultimas.length === 0
-            ? "<p>Nenhuma movimentação cadastrada.</p>"
+            ? `<p style="color:#94a3b8">Nenhuma movimentação cadastrada ainda.</p>`
             : ultimas.map(x => `
                 <div class="item">
                     <div>
@@ -48,105 +74,132 @@ function atualizarDashboard() {
                 </div>
             `).join("");
 
-    const resumo = document.getElementById("resumoInteligente");
+    resumoInteligente.innerHTML = gerarInsight(totalR, totalD, totalDiv, saldo, score);
+}
 
+function gerarInsight(totalR, totalD, totalDiv, saldo, score) {
     if (totalR === 0) {
-        resumo.innerText = "Cadastre suas receitas e despesas para receber uma análise.";
-    } else {
-        const percentualGasto = (totalD / totalR) * 100;
-
-        if (percentualGasto < 50) {
-            resumo.innerText = "Você está com uma boa margem financeira. Pode acelerar metas ou quitar dívidas.";
-        } else if (percentualGasto <= 80) {
-            resumo.innerText = "Atenção: seus gastos estão moderados. Revise despesas variáveis para melhorar seu saldo.";
-        } else {
-            resumo.innerText = "Alerta: seus gastos estão muito altos em relação à renda. Priorize cortar despesas e renegociar dívidas.";
-        }
+        return "Cadastre sua primeira receita para que o assistente consiga analisar sua saúde financeira.";
     }
+
+    const gastoPercentual = (totalD / totalR) * 100;
+
+    if (score >= 80) {
+        return `Sua saúde financeira está muito boa. Você está usando aproximadamente ${gastoPercentual.toFixed(1)}% da sua renda e ainda possui ${moeda(saldo)} disponíveis. Uma boa estratégia seria direcionar parte desse valor para metas ou reserva.`;
+    }
+
+    if (score >= 55) {
+        return `Você está em uma zona de atenção. Seus gastos representam ${gastoPercentual.toFixed(1)}% da renda. Tente reduzir despesas variáveis e manter uma sobra mensal mais consistente.`;
+    }
+
+    return `Seu cenário exige cuidado. Os gastos estão consumindo ${gastoPercentual.toFixed(1)}% da renda. Priorize cortar despesas, renegociar dívidas e evitar novos compromissos financeiros.`;
 }
 
 function renderReceitas() {
-    document.getElementById("listaReceitas").innerHTML = receitas.map((x, i) => `
-        <div class="item">
-            <div>
-                <strong>${x.descricao}</strong><br>
-                <small>${x.categoria} • ${x.data}</small>
+    listaReceitas.innerHTML = receitas.length === 0
+        ? `<p style="color:#94a3b8">Nenhuma receita cadastrada.</p>`
+        : receitas.map((x, i) => `
+            <div class="item">
+                <div>
+                    <strong>${x.descricao}</strong><br>
+                    <small>${x.categoria} • ${x.data}</small>
+                </div>
+                <div>
+                    <strong>${moeda(Number(x.valor))}</strong>
+                    <button class="remove" onclick="removerReceita(${i})">Excluir</button>
+                </div>
             </div>
-            <div>
-                <strong>${moeda(Number(x.valor))}</strong>
-                <button class="remove" onclick="removerReceita(${i})">Excluir</button>
-            </div>
-        </div>
-    `).join("");
+        `).join("");
 }
 
 function renderDespesas() {
-    document.getElementById("listaDespesas").innerHTML = despesas.map((x, i) => `
-        <div class="item">
-            <div>
-                <strong>${x.descricao}</strong><br>
-                <small>${x.categoria} • ${x.data}</small>
+    listaDespesas.innerHTML = despesas.length === 0
+        ? `<p style="color:#94a3b8">Nenhuma despesa cadastrada.</p>`
+        : despesas.map((x, i) => `
+            <div class="item">
+                <div>
+                    <strong>${x.descricao}</strong><br>
+                    <small>${x.categoria} • ${x.data}</small>
+                </div>
+                <div>
+                    <strong>${moeda(Number(x.valor))}</strong>
+                    <button class="remove" onclick="removerDespesa(${i})">Excluir</button>
+                </div>
             </div>
-            <div>
-                <strong>${moeda(Number(x.valor))}</strong>
-                <button class="remove" onclick="removerDespesa(${i})">Excluir</button>
-            </div>
-        </div>
-    `).join("");
+        `).join("");
 }
 
 function renderDividas() {
-    document.getElementById("listaDividas").innerHTML = dividas.map((x, i) => {
-        const mensal = Number(x.valor) / Number(x.prazo);
+    listaDividas.innerHTML = dividas.length === 0
+        ? `<p style="color:#94a3b8">Nenhuma dívida cadastrada.</p>`
+        : dividas.map((x, i) => {
+            const mensal = Number(x.valor) / Number(x.prazo);
 
-        return `
-            <div class="item">
-                <div>
-                    <strong>${x.nome}</strong><br>
-                    <small>${moeda(Number(x.valor))} em ${x.prazo} meses</small><br>
-                    <small>Guardar aproximadamente ${moeda(mensal)} por mês</small>
+            return `
+                <div class="item">
+                    <div>
+                        <strong>${x.nome}</strong><br>
+                        <small>${moeda(Number(x.valor))} em ${x.prazo} meses</small><br>
+                        <small>Reserva sugerida: ${moeda(mensal)} por mês</small>
+                    </div>
+                    <button class="remove" onclick="removerDivida(${i})">Excluir</button>
                 </div>
-                <button class="remove" onclick="removerDivida(${i})">Excluir</button>
-            </div>
-        `;
-    }).join("");
+            `;
+        }).join("");
 }
 
 function renderMetas() {
-    document.getElementById("listaMetas").innerHTML = metas.map((x, i) => {
-        const percentual = Math.min((Number(x.atual) / Number(x.objetivo)) * 100, 100);
+    listaMetas.innerHTML = metas.length === 0
+        ? `<p style="color:#94a3b8">Nenhuma meta cadastrada.</p>`
+        : metas.map((x, i) => {
+            const percentual = Math.min((Number(x.atual) / Number(x.objetivo)) * 100, 100);
 
-        return `
-            <div class="item">
-                <div style="width:100%">
-                    <strong>${x.nome}</strong><br>
-                    <small>${moeda(Number(x.atual))} de ${moeda(Number(x.objetivo))}</small>
-                    <div class="progress">
-                        <div class="progress-bar" style="width:${percentual}%"></div>
+            return `
+                <div class="item">
+                    <div style="width:100%">
+                        <strong>${x.nome}</strong><br>
+                        <small>${moeda(Number(x.atual))} de ${moeda(Number(x.objetivo))} • ${percentual.toFixed(1)}%</small>
+                        <div class="progress">
+                            <div class="progress-bar" style="width:${percentual}%"></div>
+                        </div>
                     </div>
+                    <div style="display:flex;gap:8px;">
+    <button onclick="adicionarValorMeta(${i})">
+        + Depositar
+    </button>
+
+    <button class="remove"
+            onclick="removerMeta(${i})">
+        Excluir
+    </button>
+</div>
                 </div>
-                <button class="remove" onclick="removerMeta(${i})">Excluir</button>
-            </div>
-        `;
-    }).join("");
+            `;
+        }).join("");
 }
 
-document.querySelectorAll(".menu").forEach(btn => {
+document.querySelectorAll(".nav-item").forEach(btn => {
     btn.addEventListener("click", () => {
-        document.querySelectorAll(".menu").forEach(x => x.classList.remove("active"));
+        document.querySelectorAll(".nav-item").forEach(x => x.classList.remove("active"));
         document.querySelectorAll(".page").forEach(x => x.classList.remove("active"));
 
         btn.classList.add("active");
+        document.getElementById(btn.dataset.page).classList.add("active");
 
-        const page = btn.dataset.page;
-        document.getElementById(page).classList.add("active");
+        const titles = {
+            dashboard: "Overview financeiro",
+            receitas: "Controle de receitas",
+            despesas: "Controle de despesas",
+            dividas: "Gestão de dívidas",
+            metas: "Metas financeiras",
+            planejador: "Planejador inteligente"
+        };
 
-        document.getElementById("pageTitle").innerText =
-            btn.innerText;
+        pageTitle.innerText = titles[btn.dataset.page];
     });
 });
 
-document.getElementById("formReceita").addEventListener("submit", e => {
+formReceita.addEventListener("submit", e => {
     e.preventDefault();
 
     receitas.push({
@@ -161,7 +214,7 @@ document.getElementById("formReceita").addEventListener("submit", e => {
     carregar();
 });
 
-document.getElementById("formDespesa").addEventListener("submit", e => {
+formDespesa.addEventListener("submit", e => {
     e.preventDefault();
 
     despesas.push({
@@ -176,7 +229,7 @@ document.getElementById("formDespesa").addEventListener("submit", e => {
     carregar();
 });
 
-document.getElementById("formDivida").addEventListener("submit", e => {
+formDivida.addEventListener("submit", e => {
     e.preventDefault();
 
     dividas.push({
@@ -190,13 +243,14 @@ document.getElementById("formDivida").addEventListener("submit", e => {
     carregar();
 });
 
-document.getElementById("formMeta").addEventListener("submit", e => {
+formMeta.addEventListener("submit", e => {
     e.preventDefault();
 
     metas.push({
         nome: metaNome.value,
         objetivo: Number(metaObjetivo.value),
-        atual: Number(metaAtual.value)
+        atual: Number(metaAtual.value),
+        historico: []
     });
 
     e.target.reset();
@@ -204,7 +258,7 @@ document.getElementById("formMeta").addEventListener("submit", e => {
     carregar();
 });
 
-document.getElementById("formPlanejador").addEventListener("submit", e => {
+formPlanejador.addEventListener("submit", e => {
     e.preventDefault();
 
     const renda = Number(planRenda.value);
@@ -217,18 +271,18 @@ document.getElementById("formPlanejador").addEventListener("submit", e => {
     const necessario = objetivo / prazo;
     const mesesReais = sobra > 0 ? Math.ceil(objetivo / sobra) : 0;
 
-    let mensagem = "";
+    let mensagem;
 
     if (sobra <= 0) {
-        mensagem = "Você não possui sobra mensal no momento. O ideal é reduzir despesas antes de assumir uma nova meta.";
+        mensagem = "Seu orçamento não possui sobra mensal. Antes de assumir uma meta, reduza gastos ou aumente a renda.";
     } else if (sobra >= necessario) {
-        mensagem = `Plano viável. Você precisa guardar ${moeda(necessario)} por mês e sua sobra atual é ${moeda(sobra)}. Mantendo esse ritmo, pode concluir em aproximadamente ${mesesReais} meses.`;
+        mensagem = `Plano viável. Guardando ${moeda(necessario)} por mês, você consegue atingir o objetivo dentro do prazo.`;
     } else {
-        mensagem = `Plano apertado. Você precisa guardar ${moeda(necessario)} por mês, mas sua sobra atual é ${moeda(sobra)}. Nesse ritmo, o prazo real será de aproximadamente ${mesesReais} meses.`;
+        mensagem = `Plano apertado. Sua sobra atual é menor que o necessário. No ritmo atual, o prazo real será de aproximadamente ${mesesReais} meses.`;
     }
 
     resultadoPlanejador.innerHTML = `
-        <strong>Resultado:</strong><br>
+        <strong>Resultado da simulação</strong><br><br>
         Renda mensal: ${moeda(renda)}<br>
         Gastos totais: ${moeda(fixos + variaveis)}<br>
         Sobra mensal: ${moeda(sobra)}<br>
@@ -268,6 +322,7 @@ function limparTudo() {
         despesas = [];
         dividas = [];
         metas = [];
+        resultadoPlanejador.innerHTML = "";
         carregar();
     }
 }
@@ -278,6 +333,28 @@ function carregar() {
     renderDespesas();
     renderDividas();
     renderMetas();
+}
+
+function adicionarValorMeta(index) {
+    const valor = Number(
+        prompt("Quanto deseja adicionar à meta?")
+    );
+
+    if (!valor || valor <= 0)
+        return;
+
+    metas[index].atual += valor;
+
+    if (!metas[index].historico)
+        metas[index].historico = [];
+
+    metas[index].historico.push({
+        data: new Date().toLocaleDateString("pt-BR"),
+        valor: valor
+    });
+
+    salvar();
+    carregar();
 }
 
 carregar();
