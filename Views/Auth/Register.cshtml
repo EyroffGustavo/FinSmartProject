@@ -1,0 +1,49 @@
+﻿@model FinanceiroInteligenteReal.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Criar Conta";
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+
+        <h1>FinSmart</h1>
+
+        <h2>Criar Conta</h2>
+
+        @if (ViewBag.Erro != null)
+        {
+            <div class="erro">
+                @ViewBag.Erro
+            </div>
+        }
+
+        <form asp-action="Register" method="post">
+
+            <div class="campo">
+                <label>Nome</label>
+                <input asp-for="Nome" />
+            </div>
+
+            <div class="campo">
+                <label>Email</label>
+                <input asp-for="Email" />
+            </div>
+
+            <div class="campo">
+                <label>Senha</label>
+                <input asp-for="Senha" type="password" />
+            </div>
+
+            <button type="submit">
+                Criar Conta
+            </button>
+
+        </form>
+
+        <a asp-action="Login">
+            Já tenho conta
+        </a>
+
+    </div>
+</div>

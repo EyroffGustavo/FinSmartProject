@@ -1,6 +1,8 @@
 using FinanceiroInteligenteReal.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace FinanceiroInteligenteReal.Controllers
 {

@@ -1,0 +1,37 @@
+﻿@model FinanceiroInteligenteReal.Models.ConfirmarEmailViewModel
+
+@{
+    ViewData["Title"] = "Confirmar E-mail";
+}
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <h1>Confirmar E-mail</h1>
+
+        @if (ViewBag.Erro != null)
+        {
+            <div class="erro">
+                @ViewBag.Erro
+            </div>
+        }
+
+        <form asp-action="ConfirmarEmail" method="post">
+
+            <input asp-for="Email" type="hidden" />
+
+            <div class="campo">
+                <label>Código</label>
+                <input asp-for="Codigo" />
+            </div>
+
+            <button type="submit">
+                Confirmar
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

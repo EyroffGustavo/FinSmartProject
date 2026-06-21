@@ -1,0 +1,46 @@
+﻿@model FinanceiroInteligenteReal.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <h1>FinSmart</h1>
+
+        <h2>Entrar</h2>
+
+        @if (ViewBag.Erro != null)
+        {
+            <div class="erro">
+                @ViewBag.Erro
+            </div>
+        }
+
+        <form asp-action="Login" method="post">
+
+            <div class="campo">
+                <label>Email</label>
+                <input asp-for="Email" />
+            </div>
+
+            <div class="campo">
+                <label>Senha</label>
+                <input asp-for="Senha" type="password" />
+            </div>
+
+            <button type="submit">
+                Entrar
+            </button>
+
+        </form>
+
+        <a asp-action="Register">
+            Criar conta
+        </a>
+
+    </div>
+
+</div>
